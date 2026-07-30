@@ -2,11 +2,12 @@
 
 import { useState, useRef, useEffect } from 'react';
 import type { FOSSEEToolId, FOSSEEProject } from '@/ecosystem/types';
+import type { DirEntry } from '@/lib/fs';
 import { FOSSEE_TOOLS } from '@/ecosystem/ToolRegistry';
 import { createProject } from '@/ecosystem/ProjectFormat';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { listProjects, createProjectBackend, getProjectDir } from '@/lib/fs';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -60,9 +61,21 @@ export default function EcosystemShell({ onEnterProject }: EcosystemShellProps) 
   const [selectedTools, setSelectedTools] = useState<FOSSEEToolId[]>(['scilab']);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [partnerPos, setPartnerPos] = useState(0);
-  const [recentList] = useState(RECENT_PROJECTS);
+  const [recentList, setRecentList] = useState<{ name: string; tools: FOSSEEToolId[]; date: string }[]>([]);
   const [showNewProject, setShowNewProject] = useState(false);
   const [countVals, setCountVals] = useState({ tools: 0, partners: 0, students: 0, labs: 0 });
+
+  useEffect(() => {
+    listProjects().then((projects) => {
+      setRecentList(
+        projects.map((p: DirEntry) => ({
+          name: p.name,
+          tools: [],
+          date: p.modified,
+        }))
+      );
+    }).catch(() => {});
+  }, []);
   const nameInputRef = useRef<HTMLInputElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
@@ -195,8 +208,25 @@ export default function EcosystemShell({ onEnterProject }: EcosystemShellProps) 
   }, []);
 
   const toggleTool = (id: FOSSEEToolId) => setSelectedTools((prev) => prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]);
-  const handleCreate = () => { if (newName.trim()) onEnterProject(createProject(newName.trim(), selectedTools)); };
-  const handleOpen = (name: string) => { const p = recentList.find((rp) => rp.name === name); onEnterProject(createProject(name, p?.tools ?? ['scilab'])); };
+
+  const handleCreate = async () => {
+    if (!newName.trim()) return;
+    try {
+      const projectPath = await createProjectBackend({ name: newName.trim(), tools: selectedTools });
+      onEnterProject(createProject(newName.trim(), selectedTools, projectPath));
+    } catch (e) {
+      onEnterProject(createProject(newName.trim(), selectedTools));
+    }
+  };
+
+  const handleOpen = (name: string) => {
+    const p = recentList.find((rp) => rp.name === name);
+    getProjectDir().then((baseDir) => {
+      onEnterProject(createProject(name, p?.tools ?? ['scilab'], `${baseDir}/${name}`));
+    }).catch(() => {
+      onEnterProject(createProject(name, p?.tools ?? ['scilab']));
+    });
+  };
 
   return (
     <main className="overflow-x-hidden w-full max-w-full bg-background text-foreground min-h-screen font-sans">
@@ -230,7 +260,7 @@ export default function EcosystemShell({ onEnterProject }: EcosystemShellProps) 
             </p>
             <div className="flex gap-3 mt-8 hero-anim">
               <Button size="lg" className="rounded-full px-8" onClick={() => setShowNewProject(true)}>Start Building</Button>
-              <Button variant="outline" size="lg" className="rounded-full px-8 text-foreground border-border hover:border-primary" onClick={() => document.querySelector('main')?.scrollTo({ top: 99999, behavior: 'smooth' })}>Recent Work</Button>
+              <Button variant="outline" size="lg" className="rounded-full px-8 text-foreground border-border hover:border-primary" onClick={() => document.getElementById('recent-projects')?.scrollIntoView({ behavior: 'smooth' })}>Recent Work</Button>
             </div>
           </div>
           <div className="relative md:h-[70vh] hero-anim overflow-hidden">
@@ -501,7 +531,7 @@ export default function EcosystemShell({ onEnterProject }: EcosystemShellProps) 
       </section>
 
       {/* RECENT PROJECTS */}
-      <section className="py-32 md:py-48 px-6 border-b border-border">
+      <section id="recent-projects" className="py-32 md:py-48 px-6 border-b border-border">
         <div className="max-w-7xl mx-auto w-full">
           <div className="mb-12">
             <p className="text-xs text-muted-foreground tracking-[0.15em] mb-4">YOUR WORK</p>
@@ -586,7 +616,7 @@ export default function EcosystemShell({ onEnterProject }: EcosystemShellProps) 
           </p>
           <div className="flex gap-3 justify-center mt-8 cta-anim">
             <Button size="lg" className="rounded-full px-10 text-base h-12" onClick={() => setShowNewProject(true)}>Create a Project</Button>
-            <Button variant="outline" size="lg" className="rounded-full px-10 text-base h-12 border-border text-foreground hover:border-primary" onClick={() => router.push('/community')}>Browse Examples</Button>
+            <Button variant="outline" size="lg" className="rounded-full px-10 text-base h-12 border-border text-foreground hover:border-primary" onClick={() => router.push('/docs#examples')}>Browse Examples</Button>
           </div>
         </div>
       </section>
@@ -696,7 +726,7 @@ export default function EcosystemShell({ onEnterProject }: EcosystemShellProps) 
                 <span className="w-px h-3 bg-border" />
                 <span onClick={() => router.push('/terms#license')} className="hover:text-muted-foreground/60 transition-colors cursor-pointer tracking-wide">License</span>
                 <span className="w-px h-3 bg-border" />
-                <span onClick={() => router.push('/docs')} className="hover:text-muted-foreground/60 transition-colors cursor-pointer tracking-wide">Sitemap</span>
+                <span onClick={() => router.push('/about')} className="hover:text-muted-foreground/60 transition-colors cursor-pointer tracking-wide">About</span>
               </div>
             </div>
           </div>

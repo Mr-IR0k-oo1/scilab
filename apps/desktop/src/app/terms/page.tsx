@@ -8,7 +8,7 @@ export default function TermsPage() {
         FOSSEE is provided as free and open source software, governed by its respective licenses.
       </p>
 
-      <h2 className="text-base font-bold mt-8 mb-3">Software License</h2>
+      <h2 id="license" className="text-base font-bold mt-8 mb-3">Software License</h2>
       <p>
         All FOSSEE tools are released under open source licenses. Scilab is distributed under the
         CeCILL license, compatible with the GNU GPL. Xcos, eSim, and OpenModelica are distributed
