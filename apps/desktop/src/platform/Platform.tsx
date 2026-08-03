@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, ReactNode } from 'react';
 import StatusBar from '@/components/StatusBar';
+import MenuBar from '@/components/MenuBar';
 import Sidebar from '@/components/Sidebar';
 import BottomPanel from '@/components/BottomPanel';
 import RightSidebar from '@/components/RightSidebar';
@@ -75,6 +76,7 @@ export default function Platform({ rightSidebarContent = 'assistant', sidebar }:
 
   return (
     <div className="app" style={{ zoom: s.zoom }}>
+      <MenuBar />
       <Layout
         sidebar={sidebar ?? (
           <Sidebar

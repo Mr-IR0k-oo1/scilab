@@ -8,3 +8,9 @@ dist/
 target/
 .next/
 out/
+
+# Python / Backend
+venv/
+__pycache__/
+build/
+*.pyc

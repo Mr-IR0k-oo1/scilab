@@ -1,39 +1,61 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { APITester } from "./APITester";
-import "./index.css";
+import { useState, useEffect } from 'react';
+import EcosystemShell from './pages/EcosystemShell';
+import AboutPage from './pages/about';
+import ContactPage from './pages/contact';
+import CommunityPage from './pages/community';
+import DocsPage from './pages/docs';
+import PrivacyPage from './pages/privacy';
+import TermsPage from './pages/terms';
+import './index.css';
 
-import logo from "./logo.svg";
-import reactLogo from "./react.svg";
+function Router() {
+  const [path, setPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const onPop = () => setPath(window.location.pathname);
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+
+  const navigate = (href: string) => {
+    window.history.pushState({}, '', href);
+    setPath(href);
+    window.scrollTo(0, 0);
+  };
+
+  // Expose navigate globally for links
+  useEffect(() => {
+    (window as any).__navigate = navigate;
+    const handleClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest('a[href]');
+      if (target) {
+        const href = target.getAttribute('href');
+        if (href && href.startsWith('/') && !href.startsWith('//')) {
+          e.preventDefault();
+          navigate(href);
+        }
+      }
+    };
+    document.addEventListener('click', handleClick);
+    return () => {
+      document.removeEventListener('click', handleClick);
+      delete (window as any).__navigate;
+    };
+  }, []);
+
+  switch (path) {
+    case '/about': return <AboutPage />;
+    case '/contact': return <ContactPage />;
+    case '/community': return <CommunityPage />;
+    case '/docs': return <DocsPage />;
+    case '/privacy': return <PrivacyPage />;
+    case '/terms': return <TermsPage />;
+    default: return <EcosystemShell />;
+  }
+}
 
 export function App() {
-  return (
-    <div className="container mx-auto p-8 text-center relative z-10">
-      <div className="flex justify-center items-center gap-8 mb-8">
-        <img
-          src={logo}
-          alt="Bun Logo"
-          className="h-36 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#646cffaa] scale-120"
-        />
-        <img
-          src={reactLogo}
-          alt="React Logo"
-          className="h-36 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#61dafbaa] [animation:spin_20s_linear_infinite]"
-        />
-      </div>
-      <Card>
-        <CardHeader className="gap-4">
-          <CardTitle className="text-3xl font-bold">Bun + React</CardTitle>
-          <CardDescription>
-            Edit <code className="rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono">src/App.tsx</code> and save to
-            test HMR
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <APITester />
-        </CardContent>
-      </Card>
-    </div>
-  );
+  return <Router />;
 }
 
 export default App;

@@ -7,29 +7,29 @@
 }
 
 :root {
-  --bg-app: #000000;
-  --bg-surface: #080808;
-  --bg-alt: #0f0f0f;
-  --bg-hover: #141414;
-  --bg-active: #1a1a1a;
-  --border: #202020;
-  --border-light: #2a2a2a;
-  --text: #e0e0e0;
-  --text-secondary: #888888;
-  --text-muted: #555555;
-  --accent: #ff3333;
-  --accent-hover: #ff5555;
-  --accent-dim: rgba(255, 51, 51, 0.12);
-  --green: #ff3333;
-  --red: #ff2222;
-  --yellow: #cccccc;
-  --orange: #aaaaaa;
-  --purple: #ff5555;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', Consolas, monospace;
-  --radius: 3px;
-  --radius-sm: 2px;
-  --transition: 80ms ease;
+  --bg-app: hsla(240, 10%, 3.9%, 0.7);
+  --bg-surface: hsla(240, 3.7%, 15.9%, 0.4);
+  --bg-alt: hsla(240, 3.7%, 15.9%, 0.2);
+  --bg-hover: hsla(252, 56%, 57%, 0.15);
+  --bg-active: hsla(252, 56%, 57%, 0.25);
+  --border: hsla(0, 0%, 100%, 0.08);
+  --border-light: hsla(0, 0%, 100%, 0.15);
+  --text: #ffffff;
+  --text-secondary: #a0a0b0;
+  --text-muted: #707080;
+  --accent: hsl(252, 56%, 57%);
+  --accent-hover: hsl(252, 56%, 65%);
+  --accent-dim: hsla(252, 56%, 57%, 0.15);
+  --green: #4ade80;
+  --red: #f87171;
+  --yellow: #facc15;
+  --orange: #fb923c;
+  --purple: #c084fc;
+  --font-sans: var(--font-outfit, 'Outfit'), system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius: 8px;
+  --radius-sm: 4px;
+  --transition: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html, body, #root {
@@ -73,10 +73,10 @@ a:hover { text-decoration: underline; }
   overflow: hidden;
 }
 
-/* === Title Bar (Zed-style minimal) === */
 .titlebar {
   height: 38px;
   background: var(--bg-app);
+  backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
@@ -163,6 +163,7 @@ a:hover { text-decoration: underline; }
   min-width: 150px;
   max-width: 400px;
   background: var(--bg-surface);
+  backdrop-filter: blur(20px);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -341,6 +342,7 @@ a:hover { text-decoration: underline; }
 .bottom-panel {
   border-top: 1px solid var(--border);
   background: var(--bg-surface);
+  backdrop-filter: blur(20px);
   display: flex;
   flex-direction: column;
   position: relative;

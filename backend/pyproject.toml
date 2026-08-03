@@ -1,0 +1,14 @@
+[project]
+name = "fossee_backend"
+version = "0.1.0"
+description = "Scilab Studio Python Backend"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

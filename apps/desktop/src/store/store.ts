@@ -8,6 +8,14 @@ export interface Tab {
   dirty?: boolean;
 }
 
+export interface Dataset {
+  id: string;
+  name: string;
+  source: string;
+  columns: { name: string; type: string; nullable: boolean }[];
+  rows: (string | number | null)[][];
+}
+
 export interface Store {
   currentView: string;
   currentTool: FOSSEEToolId;
@@ -23,10 +31,12 @@ export interface Store {
   inProject: boolean;
   scilabStatus: 'connected' | 'disconnected' | 'connecting';
   scilabPid: number | null;
+  backendStatus: 'online' | 'offline';
   theme: 'dark' | 'light';
   zoom: number;
   consoleHistory: string[];
   consoleInput: string;
+  datasets: Dataset[];
 }
 
 type Listener = (s: Store) => void;
@@ -47,10 +57,12 @@ let store: Store = {
   inProject: false,
   scilabStatus: 'disconnected',
   scilabPid: null,
+  backendStatus: 'offline',
   theme: 'dark',
   zoom: 1,
   consoleHistory: [],
   consoleInput: '',
+  datasets: [],
 };
 
 const SESSION_KEY = 'fossee-session';
@@ -163,5 +175,10 @@ export function enterProject(project: FOSSEEProject) {
 
 export function leaveProject() {
   store = { ...store, project: null, inProject: false, tabs: [], activeTab: null };
+  emit();
+}
+
+export function setDatasets(datasets: Dataset[]) {
+  store = { ...store, datasets };
   emit();
 }

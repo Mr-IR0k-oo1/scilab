@@ -1,3 +1,5 @@
+import { api } from './api';
+
 export interface DirEntry {
   name: string;
   path: string;
@@ -15,57 +17,53 @@ export interface PathInfo {
   extension: string | null;
 }
 
-async function invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
-  try {
-    const mod = await import('@tauri-apps/api/core');
-    return await (mod as any).invoke(cmd, args);
-  } catch {
-    throw new Error('Not running in Tauri');
-  }
-}
-
 export async function readTextFile(path: string): Promise<string> {
-  return invoke<string>('read_text_file', { path });
+  const res = await api.request<{ content: string }>('GET', '/api/fs/file', { path });
+  return res.content;
 }
 
 export async function writeTextFile(path: string, content: string): Promise<void> {
-  return invoke<void>('write_text_file', { path, content });
+  await api.request<void>('PUT', '/api/fs/file', { path, content });
 }
 
 export async function listDirectory(path: string): Promise<DirEntry[]> {
-  return invoke<DirEntry[]>('list_directory', { path });
+  return api.request<DirEntry[]>('GET', '/api/fs/list', { path });
 }
 
 export async function createDirectory(path: string): Promise<void> {
-  return invoke<void>('create_directory', { path });
+  await api.request<void>('POST', '/api/fs/dir', { path });
 }
 
 export async function removeFile(path: string): Promise<void> {
-  return invoke<void>('remove_file', { path });
+  await api.request<void>('DELETE', '/api/fs/file', { path });
 }
 
 export async function removeDirectory(path: string): Promise<void> {
-  return invoke<void>('remove_directory', { path });
+  await api.request<void>('DELETE', '/api/fs/dir', { path });
 }
 
 export async function fileExists(path: string): Promise<boolean> {
-  return invoke<boolean>('file_exists', { path });
+  const res = await api.request<{ exists: boolean }>('GET', '/api/fs/exists', { path });
+  return res.exists;
 }
 
 export async function pathInfo(path: string): Promise<PathInfo> {
-  return invoke<PathInfo>('path_info', { path });
+  return api.request<PathInfo>('GET', '/api/fs/info', { path });
 }
 
 export async function getAppDataDir(): Promise<string> {
-  return invoke<string>('get_app_data_dir');
+  // Polyfill using project dir for now
+  return getProjectDir();
 }
 
 export async function getDocumentsDir(): Promise<string> {
-  return invoke<string>('get_documents_dir');
+  // Polyfill using project dir for now
+  return getProjectDir();
 }
 
 export async function getProjectDir(): Promise<string> {
-  return invoke<string>('get_project_dir');
+  const res = await api.request<{ dir: string }>('GET', '/api/projects/dir');
+  return res.dir;
 }
 
 export interface CreateProjectOptions {
@@ -74,23 +72,38 @@ export interface CreateProjectOptions {
 }
 
 export async function createProjectBackend(options: CreateProjectOptions): Promise<string> {
-  return invoke<string>('create_project', { name: options.name, tools: options.tools });
+  const res = await api.request<{ name: string }>('POST', '/api/projects', {
+    name: options.name,
+    description: `Uses tools: ${options.tools.join(', ')}`
+  });
+  return res.name;
 }
 
 export async function listProjects(): Promise<DirEntry[]> {
-  return invoke<DirEntry[]>('list_projects');
+  const projects = await api.request<any[]>('GET', '/api/projects');
+  // Map project metadata to DirEntry shape for the frontend
+  return projects.map((p) => ({
+    name: p.name,
+    path: p.name, // The backend handles paths by name for projects
+    is_dir: true,
+    size: 0,
+    modified: p.updated_at ? new Date(p.updated_at * 1000).toISOString() : new Date().toISOString(),
+  }));
 }
 
 export async function renamePath(oldPath: string, newPath: string): Promise<void> {
-  return invoke<void>('rename_path', { oldPath, newPath });
+  await api.request<void>('POST', '/api/fs/rename', { old_path: oldPath, new_path: newPath });
 }
 
 export async function updateProjectMetadata(name: string): Promise<void> {
-  return invoke<void>('update_project_metadata', { name });
+  await api.request<void>('PATCH', `/api/projects/${name}`, {
+    name: name,
+    updated_at: Date.now() / 1000,
+  });
 }
 
 export async function deleteProjectBackend(name: string): Promise<void> {
-  return invoke<void>('delete_project', { name });
+  await api.request<void>('DELETE', `/api/projects/${name}`);
 }
 
 export async function tryInvokeFs<T>(fn: () => Promise<T>): Promise<{ ok: true; value: T } | { ok: false; error: string }> {
@@ -101,3 +114,4 @@ export async function tryInvokeFs<T>(fn: () => Promise<T>): Promise<{ ok: true; 
     return { ok: false, error: String(err) };
   }
 }
+

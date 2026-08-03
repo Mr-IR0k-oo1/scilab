@@ -1,13 +1,5 @@
 import { setStore } from '@/store/store';
-
-async function invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
-  try {
-    const mod = await import('@tauri-apps/api/core');
-    return await (mod as any).invoke(cmd, args);
-  } catch {
-    throw new Error('Not running in Tauri');
-  }
-}
+import { api } from './api';
 
 export interface ScilabStatus {
   running: boolean;
@@ -23,7 +15,7 @@ export interface ExecuteResult {
 
 export async function startScilab(): Promise<ScilabStatus> {
   try {
-    const status = await invoke<ScilabStatus>('start_scilab');
+    const status = await api.request<ScilabStatus>('POST', '/api/scilab/start');
     if (status.running) {
       setStore({ scilabStatus: 'connected', scilabPid: status.pid ?? null });
     }
@@ -36,18 +28,18 @@ export async function startScilab(): Promise<ScilabStatus> {
 
 export async function stopScilab(): Promise<void> {
   try {
-    await invoke<void>('stop_scilab');
+    await api.request<void>('POST', '/api/scilab/stop');
   } catch {}
   setStore({ scilabStatus: 'disconnected', scilabPid: null });
 }
 
 export async function executeScilabCode(code: string): Promise<ExecuteResult> {
-  return invoke<ExecuteResult>('execute_code', { code });
+  return api.request<ExecuteResult>('POST', '/api/scilab/execute', { code });
 }
 
 export async function getScilabStatus(): Promise<ScilabStatus | null> {
   try {
-    return await invoke<ScilabStatus>('scilab_status');
+    return await api.request<ScilabStatus>('GET', '/api/scilab/status');
   } catch {
     return null;
   }
@@ -55,7 +47,7 @@ export async function getScilabStatus(): Promise<ScilabStatus | null> {
 
 export async function syncScilabStatus(): Promise<void> {
   try {
-    const status = await invoke<ScilabStatus>('scilab_status');
+    const status = await api.request<ScilabStatus>('GET', '/api/scilab/status');
     setStore({
       scilabStatus: status.running ? 'connected' : 'disconnected',
       scilabPid: status.pid ?? null,
@@ -64,3 +56,4 @@ export async function syncScilabStatus(): Promise<void> {
     setStore({ scilabStatus: 'disconnected', scilabPid: null });
   }
 }
+

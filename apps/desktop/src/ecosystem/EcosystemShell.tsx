@@ -105,8 +105,8 @@ export default function EcosystemShell({ onEnterProject }: EcosystemShellProps) 
         if (!chars.length) return;
         ScrollTrigger.create({
           trigger: el,
-          start: 'top 78%',
-          end: 'bottom 22%',
+          start: 'top 85%',
+          end: 'top 35%',
           onUpdate: (self) => {
             chars.forEach((c, i) => {
               const progress = (self.progress - i / chars.length) * chars.length;
@@ -121,7 +121,7 @@ export default function EcosystemShell({ onEnterProject }: EcosystemShellProps) 
         ScrollTrigger.create({
           trigger: ctaTitleRef.current,
           start: 'top 85%',
-          end: 'top 60%',
+          end: 'top 65%',
           onUpdate: (self) => {
             chars.forEach((c, i) => {
               const progress = (self.progress - i / chars.length) * chars.length;
@@ -149,11 +149,11 @@ export default function EcosystemShell({ onEnterProject }: EcosystemShellProps) 
       }
 
       if (heroRef.current) {
-        gsap.from(heroRef.current.querySelectorAll('.hero-anim'), { y: 60, opacity: 0, duration: 1, stagger: 0.15, ease: 'power3.out' });
+        gsap.from(heroRef.current.querySelectorAll('.hero-anim'), { y: 60, opacity: 0, duration: 0.6, stagger: 0.08, ease: 'power3.out' });
       }
 
       if (ctaRef.current) {
-        gsap.from(ctaRef.current.querySelectorAll('.cta-anim'), { y: 40, opacity: 0, duration: 0.8, stagger: 0.1, scrollTrigger: { trigger: ctaRef.current, start: 'top 80%' } });
+        gsap.from(ctaRef.current.querySelectorAll('.cta-anim'), { y: 40, opacity: 0, duration: 0.5, stagger: 0.06, scrollTrigger: { trigger: ctaRef.current, start: 'top 80%' } });
       }
 
       if (featuresRef.current) {
@@ -431,16 +431,14 @@ export default function EcosystemShell({ onEnterProject }: EcosystemShellProps) 
             </h2>
           </div>
 
-          <div className="grid grid-cols-4 grid-flow-dense gap-px bg-border auto-rows-[180px]">
+          <div className="grid grid-cols-4 gap-px bg-border auto-rows-[180px]">
             {[
-              { val: countVals.tools, suffix: '', label: 'Open Source Tools', wide: false, tall: false },
-              { val: countVals.partners, suffix: '+', label: 'University Partners', wide: true, tall: false },
-              { val: countVals.students, suffix: 'K+', label: 'Students Reached', wide: false, tall: false },
-              { val: countVals.labs, suffix: '+', label: 'Lab Installations', wide: true, tall: false },
+              { val: countVals.tools, suffix: '', label: 'Open Source Tools' },
+              { val: countVals.partners, suffix: '+', label: 'University Partners' },
+              { val: countVals.students, suffix: 'K+', label: 'Students Reached' },
+              { val: countVals.labs, suffix: '+', label: 'Lab Installations' },
             ].map((s, i) => (
-              <div key={i} className={`bg-card p-10 flex flex-col items-center justify-center relative overflow-hidden group ${
-                s.wide ? 'col-span-2' : 'col-span-1'
-              } ${s.tall ? 'row-span-2' : 'row-span-1'}`}>
+              <div key={i} className="bg-card p-10 flex flex-col items-center justify-center relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent group-hover:from-primary/[0.04] transition-all duration-700" />
                 <p className="text-4xl md:text-5xl font-bold text-primary tabular-nums relative z-[1]">
                   {s.val}{s.suffix}
