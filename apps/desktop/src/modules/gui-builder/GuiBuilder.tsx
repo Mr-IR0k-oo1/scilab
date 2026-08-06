@@ -134,16 +134,47 @@ export default function GuiBuilder() {
                   <div
                     key={widget.id}
                     className={`gui-widget ${isSelected ? 'selected' : ''}`}
-                    style={{ left: widget.x, top: widget.y, width: widget.width, height: widget.height }}
+                    style={{
+                      left: widget.x,
+                      top: widget.y,
+                      width: widget.width,
+                      height: widget.height,
+                      backgroundColor: widget.props.backgroundColor,
+                      color: widget.props.textColor,
+                      border: widget.props.border,
+                      fontSize: widget.props.fontSize ? `${widget.props.fontSize}px` : undefined,
+                    }}
                     onMouseDown={(e) => handleWidgetMouseDown(e, widget)}
                   >
                     <div className="gui-widget-content">
                       {widget.type === 'button' && <button className="gui-button">{widget.props.label ?? 'Button'}</button>}
                       {widget.type === 'label' && <span className="gui-label">{widget.props.label ?? 'Label'}</span>}
                       {widget.type === 'text-field' && <input className="gui-input" placeholder={widget.props.label ?? 'Text'} readOnly />}
-                      {widget.type === 'slider' && <input type="range" className="gui-slider" />}
+                      {widget.type === 'slider' && <input type="range" className="gui-slider" readOnly />}
                       {widget.type === 'checkbox' && (
-                        <label className="gui-checkbox"><input type="checkbox" /> {widget.props.label ?? 'Check'}</label>
+                        <label className="gui-checkbox"><input type="checkbox" readOnly /> {widget.props.label ?? 'Check'}</label>
+                      )}
+                      {widget.type === 'dropdown' && (
+                        <select className="gui-select" disabled>
+                          <option>{widget.props.label ?? 'Option 1'}</option>
+                          <option>Option 2</option>
+                        </select>
+                      )}
+                      {widget.type === 'image' && (
+                        <div className="gui-image-placeholder">
+                          <span>🖼 {widget.props.label ?? 'Image Preview'}</span>
+                        </div>
+                      )}
+                      {widget.type === 'table' && (
+                        <table className="gui-table-placeholder">
+                          <thead>
+                            <tr><th>Col 1</th><th>Col 2</th></tr>
+                          </thead>
+                          <tbody>
+                            <tr><td>Val A</td><td>Val B</td></tr>
+                            <tr><td>Val C</td><td>Val D</td></tr>
+                          </tbody>
+                        </table>
                       )}
                       {widget.type === 'plot' && <div className="gui-plot">[ Plot Area ]</div>}
                       {widget.type === 'panel' && <div className="gui-panel">{widget.props.label ?? 'Panel'}</div>}
@@ -166,7 +197,8 @@ export default function GuiBuilder() {
 function widgetTypeToStyle(type: WidgetType): string {
   const map: Record<string, string> = {
     button: 'pushbutton', label: 'text', 'text-field': 'edit',
-    slider: 'slider', checkbox: 'checkbox', plot: 'axes', panel: 'frame',
+    slider: 'slider', checkbox: 'checkbox', dropdown: 'popupmenu',
+    image: 'image', table: 'table', plot: 'axes', panel: 'frame',
   };
   return map[type] ?? 'pushbutton';
 }

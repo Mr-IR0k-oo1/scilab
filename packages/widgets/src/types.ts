@@ -8,7 +8,7 @@ export interface Widget {
   props: Record<string, string>;
 }
 
-export type WidgetType = 'button' | 'label' | 'text-field' | 'slider' | 'checkbox' | 'plot' | 'panel';
+export type WidgetType = 'button' | 'label' | 'text-field' | 'slider' | 'checkbox' | 'dropdown' | 'panel' | 'image' | 'table' | 'plot';
 
 export interface WidgetDefinition {
   type: WidgetType;
@@ -24,6 +24,9 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
   { type: 'text-field', label: 'Text Field', icon: '▭', defaultWidth: 200, defaultHeight: 32 },
   { type: 'slider', label: 'Slider', icon: '─○─', defaultWidth: 200, defaultHeight: 30 },
   { type: 'checkbox', label: 'Checkbox', icon: '☑', defaultWidth: 150, defaultHeight: 24 },
-  { type: 'plot', label: 'Plot', icon: '📊', defaultWidth: 400, defaultHeight: 300 },
+  { type: 'dropdown', label: 'Dropdown', icon: '▾', defaultWidth: 180, defaultHeight: 32 },
   { type: 'panel', label: 'Panel', icon: '▢', defaultWidth: 300, defaultHeight: 200 },
+  { type: 'image', label: 'Image', icon: '🖼', defaultWidth: 240, defaultHeight: 160 },
+  { type: 'table', label: 'Table', icon: '▦', defaultWidth: 350, defaultHeight: 220 },
+  { type: 'plot', label: 'Plot', icon: '📊', defaultWidth: 400, defaultHeight: 300 },
 ];

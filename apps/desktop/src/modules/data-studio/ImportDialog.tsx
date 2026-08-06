@@ -19,16 +19,36 @@ export default function ImportDialog({ onImport, onClose }: ImportDialogProps) {
 
     try {
       const text = await file.text();
-      const lines = text.split('\n').filter((l) => l.trim());
-      const data = lines.map((l) => {
-        const vals = l.split(',').map((v) => {
-          const trimmed = v.trim().replace(/^"|"$/g, '');
-          if (trimmed === '') return null;
-          const num = Number(trimmed);
-          return isNaN(num) ? trimmed : num;
+      let data: (string | number | null)[][] = [];
+
+      if (file.name.endsWith('.json')) {
+        const parsed = JSON.parse(text);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          if (typeof parsed[0] === 'object' && parsed[0] !== null) {
+            const keys = Object.keys(parsed[0]);
+            data = [keys, ...parsed.map((item: any) => keys.map((k) => item[k] ?? null))];
+          } else if (Array.isArray(parsed[0])) {
+            data = parsed;
+          }
+        }
+      } else {
+        // CSV / TSV handling
+        const delimiter = file.name.endsWith('.tsv') ? '\t' : ',';
+        const lines = text.split('\n').filter((l) => l.trim());
+        data = lines.map((l) => {
+          return l.split(delimiter).map((v) => {
+            const trimmed = v.trim().replace(/^"|"$/g, '');
+            if (trimmed === '') return null;
+            const num = Number(trimmed);
+            return isNaN(num) ? trimmed : num;
+          });
         });
-        return vals;
-      });
+      }
+
+      if (data.length === 0) {
+        throw new Error('No data found in file');
+      }
+
       onImport(data, name || file.name.replace(/\.[^/.]+$/, ''));
     } catch (err: any) {
       setError(err.message ?? 'Failed to parse file');
@@ -57,8 +77,8 @@ export default function ImportDialog({ onImport, onClose }: ImportDialogProps) {
           <div className="form-group">
             <label>File</label>
             <div className="file-dropzone" onClick={() => fileRef.current?.click()}>
-              <input ref={fileRef} type="file" accept=".csv,.tsv,.xlsx,.xls,.json" hidden onChange={handleFile} />
-              {loading ? <span>Loading...</span> : <span>Click to select CSV, Excel, or JSON file</span>}
+              <input ref={fileRef} type="file" accept=".csv,.tsv,.json" hidden onChange={handleFile} />
+              {loading ? <span>Loading...</span> : <span>Click to select CSV, TSV, or JSON file</span>}
             </div>
           </div>
           {error && <div className="form-error">{error}</div>}

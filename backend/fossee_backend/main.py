@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import FOSSEE_BACKEND_PORT, EXTRA_CORS_ORIGINS
-from .routers import scilab, fs, projects, charts, widgets
+from .routers import scilab, fs, projects, charts, widgets, data, reports, learning
 
 app = FastAPI(title="FOSSEE Backend")
 
@@ -25,6 +25,9 @@ app.include_router(fs.router)
 app.include_router(projects.router)
 app.include_router(charts.router)
 app.include_router(widgets.router)
+app.include_router(data.router)
+app.include_router(reports.router)
+app.include_router(learning.router)
 
 @app.get("/api/health")
 async def health_check():
