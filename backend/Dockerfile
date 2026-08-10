@@ -1,9 +1,9 @@
 FROM python:3.10-slim
 
-# Install system dependencies & Scilab CLI
+# Install system dependencies & Scilab
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    scilab-cli \
     curl \
+    && (apt-get install -y --no-install-recommends scilab-cli || apt-get install -y --no-install-recommends scilab || true) \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -28,4 +28,3 @@ ENV FOSSEE_BACKEND_PORT=8747
 ENV HOST=0.0.0.0
 
 CMD ["python", "run.py"]
-

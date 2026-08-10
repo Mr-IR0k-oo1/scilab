@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Platform from '@/platform/Platform';
 import WorkspaceManager from '@/ecosystem/WorkspaceManager';
-import { getStore, subscribe, toggleSidebar, toggleBottomPanel, leaveProject } from '@/store/store';
+import { getStore, subscribe, toggleSidebar, toggleBottomPanel } from '@/store/store';
 import { FOSSEE_TOOLS } from '@/ecosystem/ToolRegistry';
 
 export default function WorkspaceView() {
@@ -15,9 +15,6 @@ export default function WorkspaceView() {
   return (
     <div className="app">
       <header className="titlebar">
-        <button className="titlebar-btn" onClick={leaveProject} title="Back to Ecosystem">
-          ←
-        </button>
         <span className="titlebar-logo" style={{ fontSize: 12, color: 'var(--text-muted)' }}>
           {s.project?.name ?? 'Project'}
         </span>

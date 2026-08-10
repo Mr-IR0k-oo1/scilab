@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import EcosystemShell from '@/ecosystem/EcosystemShell';
 import WorkspaceView from '@/shell/WorkspaceView';
 import { enterProject, getStore, subscribe, restoreSession, setStore } from '@/store/store';
 import { syncScilabStatus } from '@/lib/scilab';
@@ -48,10 +47,6 @@ export default function Shell() {
         <span>FOSSEE Engineering Workspace</span>
       </div>
     );
-  }
-
-  if (!s.inProject) {
-    return <EcosystemShell onEnterProject={(project: FOSSEEProject) => enterProject(project)} />;
   }
 
   return <WorkspaceView />;

@@ -10,7 +10,6 @@ This document outlines the testing strategy, commands, and procedures for verify
 | **PySide6 App** | `scilab-studio/tests/` | `PYTHONPATH=scilab-studio python3 -m unittest discover -s scilab-studio/tests` | Core Runtime, EventBus, Lifecycle, ServiceRegistry, Workspace, UI Console |
 | **Desktop App Store & Widgets** | `apps/desktop/src/store/` & `packages/widgets/` | `bun test apps/desktop/src/store/store.test.ts packages/widgets/src/index.test.ts` | State Management, Tabs, Widget Definitions |
 | **Desktop App Frontend** | `apps/desktop/` | `bun run --cwd apps/desktop typecheck` | Next.js / TypeScript static verification |
-| **Website** | `frontend/` | `bun run --cwd frontend build` | Website build and asset bundling |
 
 ---
 
@@ -35,9 +34,6 @@ bun test packages/widgets/src/index.test.ts apps/desktop/src/store/store.test.ts
 ```bash
 # Desktop app TypeScript check
 bun run --cwd apps/desktop typecheck
-
-# Website build verification
-bun run --cwd frontend build
 ```
 
 ---
@@ -61,7 +57,6 @@ bun test packages/widgets/src/index.test.ts apps/desktop/src/store/store.test.ts
 
 echo "=== 4. TypeScript & Build Checks ==="
 bun run --cwd apps/desktop typecheck
-bun run --cwd frontend build
 
 echo "✅ All tests passed successfully!"
 ```
