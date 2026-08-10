@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { getStore, subscribe, setTabData, setTabDirty } from '@/store/store';
+import { getStore, subscribe, setTabData, setTabDirty, toggleOutputTab } from '@/store/store';
 import { readTextFile, writeTextFile } from '@/lib/fs';
 import { startScilab, stopScilab, executeScilabCode } from '@/lib/scilab';
 import { updateProjectMetadata } from '@/lib/fs';
@@ -127,6 +127,14 @@ export default function ScriptEditor() {
     setRunning(false);
   };
 
+  useEffect(() => {
+    const handler = () => {
+      handleRun();
+    };
+    document.addEventListener('app:run-script', handler);
+    return () => document.removeEventListener('app:run-script', handler);
+  });
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
       e.preventDefault();
@@ -145,6 +153,7 @@ export default function ScriptEditor() {
   };
 
   const clearOutput = () => setOutput('');
+  const [outputWidth, setOutputWidth] = useState(320);
 
   return (
     <div className="script-editor">
@@ -165,6 +174,13 @@ export default function ScriptEditor() {
           {running ? 'Running...' : 'Run (Ctrl+Enter)'}
         </button>
         <div className="toolbar-separator" />
+        <button
+          className={`toolbar-btn ${getStore().showEditorOutput ? 'active' : ''}`}
+          onClick={toggleOutputTab}
+          title="Toggle Output Tab"
+        >
+          {getStore().showEditorOutput ? 'Hide Output Tab' : 'Show Output Tab'}
+        </button>
         <button className="toolbar-btn" onClick={clearOutput}>Clear Output</button>
         <span className="toolbar-spacer" />
         {loading && <span className="status-indicator">Loading...</span>}
@@ -182,10 +198,40 @@ export default function ScriptEditor() {
             spellCheck={false}
           />
         </div>
-        <div className="output-panel">
-          <div className="output-header">Output</div>
-          <pre ref={outputRef} className="output-content">{output || 'Output will appear here'}</pre>
-        </div>
+        {getStore().showEditorOutput && (
+          <div className="output-panel" style={{ width: outputWidth, flexShrink: 0, position: 'relative' }}>
+            <div
+              className="resize-handle-x left"
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: '5px',
+                cursor: 'col-resize',
+                zIndex: 10,
+              }}
+              onMouseDown={(e) => {
+                const start = e.clientX;
+                const startW = outputWidth;
+                const onMove = (ev: MouseEvent) => {
+                  setOutputWidth(Math.max(160, Math.min(800, startW - (ev.clientX - start))));
+                };
+                const onUp = () => {
+                  window.removeEventListener('mousemove', onMove);
+                  window.removeEventListener('mouseup', onUp);
+                };
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onUp);
+              }}
+            />
+            <div className="output-header">
+              <span>Output Tab</span>
+              <button className="bp-close" onClick={toggleOutputTab} title="Close Output Tab">×</button>
+            </div>
+            <pre ref={outputRef} className="output-content">{output || 'Output will appear here'}</pre>
+          </div>
+        )}
       </div>
     </div>
   );

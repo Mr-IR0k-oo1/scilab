@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "mechanical.spring_mass",
+  "name": "Mass-Spring-Damper Dynamic Response",
+  "version": "1.0.0",
+  "category": "mechanical",
+  "description": "Solves the second-order ordinary differential equation (ODE) governing forced vibration of a mass-spring-damper mechanical system.",
+  "difficulty": "intermediate",
+  "scilab_version": ">=6.0.0",
+  "entry_experiment": "scripts/main.sce",
+  "parameters": [
+    {
+      "name": "mass_kg",
+      "label": "Mass (m)",
+      "type": "number",
+      "default": 2.0,
+      "minimum": 0.1,
+      "maximum": 50.0,
+      "step": 0.5,
+      "unit": "kg"
+    },
+    {
+      "name": "k_spring",
+      "label": "Spring Stiffness (k)",
+      "type": "number",
+      "default": 100.0,
+      "minimum": 1.0,
+      "maximum": 1000.0,
+      "step": 10.0,
+      "unit": "N/m"
+    },
+    {
+      "name": "c_damping",
+      "label": "Damping Coefficient (c)",
+      "type": "number",
+      "default": 2.0,
+      "minimum": 0.0,
+      "maximum": 50.0,
+      "step": 0.5,
+      "unit": "N s/m"
+    }
+  ],
+  "tags": ["mechanical", "vibration", "spring-mass", "ode"]
+}

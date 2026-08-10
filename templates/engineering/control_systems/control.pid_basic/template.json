@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "control.pid_basic",
+  "name": "PID Control System Demonstration",
+  "version": "1.0.0",
+  "category": "control_systems",
+  "description": "Simulates a closed-loop step response for a second-order plant with tunable Proportional (Kp), Integral (Ki), and Derivative (Kd) feedback gain parameters.",
+  "difficulty": "intermediate",
+  "scilab_version": ">=6.0.0",
+  "entry_experiment": "scripts/main.sce",
+  "parameters": [
+    {
+      "name": "kp",
+      "label": "Proportional Gain (Kp)",
+      "type": "number",
+      "default": 1.0,
+      "minimum": 0.0,
+      "maximum": 50.0,
+      "step": 0.1,
+      "unit": ""
+    },
+    {
+      "name": "ki",
+      "label": "Integral Gain (Ki)",
+      "type": "number",
+      "default": 0.5,
+      "minimum": 0.0,
+      "maximum": 20.0,
+      "step": 0.05,
+      "unit": ""
+    },
+    {
+      "name": "kd",
+      "label": "Derivative Gain (Kd)",
+      "type": "number",
+      "default": 0.1,
+      "minimum": 0.0,
+      "maximum": 10.0,
+      "step": 0.01,
+      "unit": ""
+    }
+  ],
+  "tags": ["control", "pid", "step-response", "simulation"]
+}

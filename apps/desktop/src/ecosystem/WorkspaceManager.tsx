@@ -1,22 +1,46 @@
-import { useState, useEffect, type ReactNode } from 'react';
-import { getStore, subscribe, setStore, switchTool, leaveProject, openTab } from '@/store/store';
-import { getTool, FOSSEE_TOOLS } from '@/ecosystem/ToolRegistry';
+import { useEffect, useState, type ReactNode } from 'react';
+import {
+  Blocks,
+  ChartColumn,
+  ChevronDown,
+  ChevronRight,
+  Code2,
+  File,
+  FileSpreadsheet,
+  FileText,
+  Folder,
+  FolderOpen,
+  GraduationCap,
+  PanelTop,
+  Table2,
+  X,
+} from 'lucide-react';
+import { getStore, leaveProject, openTab, setStore, subscribe, switchTool } from '@/store/store';
+import { FOSSEE_TOOLS, getTool } from '@/ecosystem/ToolRegistry';
 import type { WorkspaceFile } from './types';
-import { CodeRed, Csv, Document, PDF, Folder, FolderOpen } from '@react-symbols/icons';
 import { listDirectory } from '@/lib/fs';
 
 const FILE_ICONS: Record<string, ReactNode> = {
-  sce: <CodeRed width={14} height={14} />,
-  sci: <CodeRed width={14} height={14} />,
-  csv: <Csv width={14} height={14} />,
-  xlsx: <Document width={14} height={14} />,
-  xls: <Document width={14} height={14} />,
-  pdf: <PDF width={14} height={14} />,
+  sce: <Code2 size={14} />,
+  sci: <Code2 size={14} />,
+  csv: <FileSpreadsheet size={14} />,
+  xlsx: <FileSpreadsheet size={14} />,
+  xls: <FileSpreadsheet size={14} />,
+  pdf: <FileText size={14} />,
+};
+
+const MODULE_ICONS: Record<string, ReactNode> = {
+  editor: <Code2 size={14} />,
+  gui: <Blocks size={14} />,
+  viz: <ChartColumn size={14} />,
+  data: <Table2 size={14} />,
+  report: <FileText size={14} />,
+  learn: <GraduationCap size={14} />,
 };
 
 function getFileIcon(name: string): ReactNode {
   const ext = name.split('.').pop()?.toLowerCase();
-  return ext && ext in FILE_ICONS ? FILE_ICONS[ext] : <Document width={14} height={14} />;
+  return ext && ext in FILE_ICONS ? FILE_ICONS[ext] : <File size={14} />;
 }
 
 function toWorkspaceFile(entry: { name: string; path: string; is_dir: boolean }): WorkspaceFile {
@@ -28,35 +52,43 @@ function toWorkspaceFile(entry: { name: string; path: string; is_dir: boolean })
   };
 }
 
+async function loadWorkspaceDir(dirPath: string): Promise<WorkspaceFile[]> {
+  try {
+    const entries = await listDirectory(dirPath);
+    return entries.map(toWorkspaceFile);
+  } catch {
+    return [];
+  }
+}
+
 interface ToolModule {
   id: string;
   label: string;
-  icon: string;
 }
 
 const TOOL_MODULES: Record<string, ToolModule[]> = {
   scilab: [
-    { id: 'editor', label: 'Editor', icon: '<>' },
-    { id: 'gui', label: 'GUI', icon: '▣' },
-    { id: 'viz', label: 'Viz', icon: '◈' },
-    { id: 'data', label: 'Data', icon: '≡' },
-    { id: 'report', label: 'Report', icon: '▤' },
-    { id: 'learn', label: 'Learn', icon: '⌘' },
+    { id: 'editor', label: 'Editor' },
+    { id: 'gui', label: 'GUI' },
+    { id: 'viz', label: 'Viz' },
+    { id: 'data', label: 'Data' },
+    { id: 'report', label: 'Report' },
+    { id: 'learn', label: 'Learn' },
   ],
   xcos: [
-    { id: 'viz', label: 'Model', icon: '◈' },
-    { id: 'data', label: 'Data', icon: '≡' },
-    { id: 'report', label: 'Report', icon: '▤' },
+    { id: 'viz', label: 'Model' },
+    { id: 'data', label: 'Data' },
+    { id: 'report', label: 'Report' },
   ],
   esim: [
-    { id: 'viz', label: 'Schematic', icon: '◎' },
-    { id: 'report', label: 'Report', icon: '▤' },
+    { id: 'viz', label: 'Schematic' },
+    { id: 'report', label: 'Report' },
   ],
   openmodelica: [
-    { id: 'editor', label: 'Modelica', icon: '<>' },
-    { id: 'viz', label: 'Simulation', icon: '◈' },
-    { id: 'data', label: 'Data', icon: '≡' },
-    { id: 'report', label: 'Report', icon: '▤' },
+    { id: 'editor', label: 'Modelica' },
+    { id: 'viz', label: 'Simulation' },
+    { id: 'data', label: 'Data' },
+    { id: 'report', label: 'Report' },
   ],
 };
 
@@ -68,27 +100,18 @@ export default function WorkspaceManager() {
   useEffect(() => subscribe(() => forceUpdate((n) => n + 1)), []);
 
   const s = getStore();
-  if (!s.project) return null;
-
-  const rootPath = s.project.path;
+  const rootPath = s.project?.path;
   const tool = getTool(s.currentTool);
   const modules = TOOL_MODULES[s.currentTool] ?? [];
 
   useEffect(() => {
     if (!rootPath) return;
-    loadDir(rootPath).then((entries) => {
+    loadWorkspaceDir(rootPath).then((entries) => {
       setTreeData((prev) => ({ ...prev, [rootPath]: entries }));
     });
   }, [rootPath]);
 
-  const loadDir = async (dirPath: string): Promise<WorkspaceFile[]> => {
-    try {
-      const entries = await listDirectory(dirPath);
-      return entries.map(toWorkspaceFile);
-    } catch {
-      return [];
-    }
-  };
+  if (!s.project || !rootPath) return null;
 
   const switchModule = (id: string) => {
     const mod = modules.find((m) => m.id === id);
@@ -107,96 +130,83 @@ export default function WorkspaceManager() {
     setExpanded(next);
 
     if (!treeData[path]) {
-      const children = await loadDir(path);
+      const children = await loadWorkspaceDir(path);
       setTreeData((prev) => ({ ...prev, [path]: children }));
     }
-  };
-
-  const renderNode = (node: WorkspaceFile, depth: number) => {
-    const isExpanded = expanded.has(node.path);
-    const isFolder = node.type === 'folder';
-    const name = node.name;
-    const ext = name.split('.').pop()?.toLowerCase();
-    const children = isFolder ? (treeData[node.path] ?? node.children ?? []) : [];
-    return (
-      <div key={node.path}>
-        <div
-          className="tree-node"
-          style={{ paddingLeft: 8 + depth * 16 }}
-          onClick={() => isFolder ? toggleExpand(node.path) : openFile(name, node.path)}
-        >
-          <span className="tree-icon">
-            {isFolder
-              ? (isExpanded ? <FolderOpen width={14} height={14} /> : <Folder width={14} height={14} />)
-              : getFileIcon(name)}
-          </span>
-          <span className="tree-name">{name}</span>
-        </div>
-        {isFolder && isExpanded && children.map((child) => renderNode(child, depth + 1))}
-      </div>
-    );
   };
 
   const openFile = (name: string, filePath: string) => {
     const ext = name.split('.').pop()?.toLowerCase();
     const moduleMap: Record<string, string> = {
-      sce: 'editor', sci: 'editor', csv: 'data', xlsx: 'data', xls: 'data',
+      sce: 'editor',
+      sci: 'editor',
+      csv: 'data',
+      xlsx: 'data',
+      xls: 'data',
     };
     const mod = moduleMap[ext ?? ''] ?? 'editor';
     openTab({ id: 'file-' + filePath, title: name, module: mod, data: { filePath } });
     setStore({ currentView: mod });
   };
 
-  const handleSwitchTool = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    switchTool(e.target.value as any);
+  const renderNode = (node: WorkspaceFile, depth: number) => {
+    const isExpanded = expanded.has(node.path);
+    const isFolder = node.type === 'folder';
+    const children = isFolder ? (treeData[node.path] ?? node.children ?? []) : [];
+
+    return (
+      <div key={node.path}>
+        <button
+          className="tree-node"
+          style={{ paddingLeft: 8 + depth * 14 }}
+          onClick={() => isFolder ? toggleExpand(node.path) : openFile(node.name, node.path)}
+          title={node.path}
+        >
+          <span className="tree-caret">
+            {isFolder ? (isExpanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />) : null}
+          </span>
+          <span className="tree-icon">
+            {isFolder ? (isExpanded ? <FolderOpen size={14} /> : <Folder size={14} />) : getFileIcon(node.name)}
+          </span>
+          <span className="tree-name">{node.name}</span>
+        </button>
+        {isFolder && isExpanded && children.map((child) => renderNode(child, depth + 1))}
+      </div>
+    );
   };
 
   return (
-    <div className="sidebar">
-      <div className="sidebar-section">
-        <div className="sidebar-header" style={{ padding: '8px 12px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <h3 style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {s.project.name}
-            </h3>
-            <button className="icon-btn" onClick={leaveProject} title="Close Project">×</button>
-          </div>
-          <select
-            className="tool-select"
-            value={s.currentTool}
-            onChange={handleSwitchTool}
-            style={{
-              width: '100%', padding: '4px 8px', background: 'var(--bg-app)',
-              color: 'var(--text)', border: '1px solid var(--border)',
-              borderRadius: 'var(--radius)', fontSize: 12, outline: 'none',
-            }}
-          >
-            {s.project.tools.map((tid) => {
-              const t = FOSSEE_TOOLS[tid];
-              return <option key={tid} value={tid}>{t?.name ?? tid}</option>;
-            })}
-          </select>
+    <div className="project-panel">
+      <div className="project-panel-header">
+        <div className="project-panel-title">
+          <PanelTop size={14} />
+          <span>{s.project.name}</span>
         </div>
+        <button className="icon-btn" onClick={leaveProject} title="Close project" aria-label="Close project">
+          <X size={14} />
+        </button>
       </div>
 
-      <div className="sidebar-tabs" style={{ display: 'flex', borderBottom: '1px solid var(--border)' }}>
+      <label className="tool-switcher">
+        <span>Runtime</span>
+        <select className="tool-select" value={s.currentTool} onChange={(e) => switchTool(e.target.value as any)}>
+          {s.project.tools.map((tid) => {
+            const t = FOSSEE_TOOLS[tid];
+            return <option key={tid} value={tid}>{t?.name ?? tid}</option>;
+          })}
+        </select>
+      </label>
+
+      <div className="module-strip" aria-label={`${tool.name} modules`}>
         {modules.map((m) => (
-          <button
-            key={m.id}
-            className="sidebar-tab"
-            style={{
-              flex: 1, padding: '6px 8px', background: 'none', border: 'none',
-              borderBottom: `2px solid ${s.currentView === m.id ? 'var(--accent)' : 'transparent'}`,
-              color: s.currentView === m.id ? 'var(--accent)' : 'var(--text-muted)',
-              fontSize: 11, fontWeight: 500, cursor: 'pointer', textAlign: 'center',
-            }}
-            onClick={() => switchModule(m.id)}
-          >
-            {m.icon} {m.label}
+          <button key={m.id} className={`module-pill ${s.currentView === m.id ? 'active' : ''}`} onClick={() => switchModule(m.id)}>
+            {MODULE_ICONS[m.id]}
+            <span>{m.label}</span>
           </button>
         ))}
       </div>
 
+      <div className="sidebar-section-title">Files</div>
       <div className="sidebar-tree">
         {(treeData[rootPath] ?? []).map((node) => renderNode(node, 0))}
       </div>

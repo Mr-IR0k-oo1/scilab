@@ -1,0 +1,12 @@
+from enum import Enum
+
+
+class PluginStatus(str, Enum):
+    DISCOVERED = "DISCOVERED"
+    VALIDATED = "VALIDATED"
+    LOADED = "LOADED"
+    INITIALIZED = "INITIALIZED"
+    RUNNING = "RUNNING"
+    DISABLED = "DISABLED"
+    FAILED = "FAILED"
+    STOPPED = "STOPPED"

@@ -1,0 +1,47 @@
+[
+  {
+    "label": "dev",
+    "command": "npm run dev",
+    "use_new_terminal": false,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "backend:dev",
+    "command": "uvicorn app.main:app --reload --host 127.0.0.1 --port 8000",
+    "cwd": "$ZED_DIRNAME/backend",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "backend:test",
+    "command": "pytest",
+    "cwd": "$ZED_DIRNAME/backend",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "backend:lint",
+    "command": "ruff check .",
+    "cwd": "$ZED_DIRNAME/backend",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "frontend:dev",
+    "command": "npm run dev --workspace=@scilab-studio/desktop",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "frontend:test",
+    "command": "npm run test",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  },
+  {
+    "label": "frontend:build",
+    "command": "npm run build --workspace=@scilab-studio/desktop",
+    "use_new_terminal": true,
+    "allow_concurrent_runs": false
+  }
+]

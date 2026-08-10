@@ -43,7 +43,6 @@ function evalCommand(cmd: string): string {
 }
 
 export default function BottomPanel() {
-  const [activeTab, setActiveTab] = useState<PanelTab>('console');
   const [, forceUpdate] = useState(0);
   const [input, setInput] = useState('');
   const [history, setHistory] = useState<string[]>([]);
@@ -80,6 +79,9 @@ export default function BottomPanel() {
       executeCommand(input);
     }
   };
+
+  const activeTab = s.activeBottomTab;
+  const setActiveTab = (tab: PanelTab) => setStore({ activeBottomTab: tab });
 
   return (
     <div className="bottom-panel-content">

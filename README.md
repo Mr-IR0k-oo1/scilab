@@ -60,77 +60,168 @@ See [Product Vision](docs/02_Product_Vision.md) for the full roadmap.
 
 ---
 
-## Architecture
+## Architecture (Phase 1 Full-Stack Infrastructure)
 
-Scilab Studio uses a layered architecture. The core platform provides a plugin
-manager, event bus, and Scilab bridge. Modules sit on top of the core and
-communicate through well-defined interfaces. At the bottom, the Scilab engine
-runs as a sidecar process, receiving JSON-RPC calls over stdin/stdout.
+Scilab Studio uses a clean, production-grade full-stack architecture:
 
 ```
-┌─────────────────────────────────────────────────┐
-│                 SCILAB STUDIO                    │
-├─────────────────────────────────────────────────┤
-│                                                   │
-│  ┌───────────────────────────────────────────┐  │
-│  │          CORE PLATFORM                     │  │
-│  │  ┌─────────┐ ┌──────────┐ ┌───────────┐  │  │
-│  │  │ Plugin  │ │ Event    │ │ Scilab    │  │  │
-│  │  │ Manager │ │ Bus      │ │ Bridge    │  │  │
-│  │  └─────────┘ └──────────┘ └───────────┘  │  │
-│  └───────────────────────────────────────────┘  │
-│                                                   │
-│  ┌───────────────────────────────────────────┐  │
-│  │          v0.1 MODULES                      │  │
-│  │  ┌──────────┐ ┌──────────┐ ┌───────────┐ │  │
-│  │  │ GUI      │ │ Viz      │ │ Data      │ │  │
-│  │  │ Builder  │ │ Studio   │ │ Studio    │ │  │
-│  │  └──────────┘ └──────────┘ └───────────┘ │  │
-│  │  ┌──────────┐ ┌──────────┐ ┌───────────┐ │  │
-│  │  │ Report   │ │ Project  │ │ Learning  │ │  │
-│  │  │ Gen      │ │ Manager  │ │ Center    │ │  │
-│  │  └──────────┘ └──────────┘ └───────────┘ │  │
-│  └───────────────────────────────────────────┘  │
-│                                                   │
-│  ┌───────────────────────────────────────────┐  │
-│  │          SCILAB ENGINE                     │  │
-│  │  (via JSON-RPC over stdin/stdout)          │  │
-│  └───────────────────────────────────────────┘  │
-│                                                   │
-└─────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│                    SCILAB STUDIO                        │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│   FRONTEND: React + TypeScript (apps/desktop)           │
+│   - Next.js App Router                                  │
+│   - State Store (pub/sub) & ApiTransport                │
+│   - Design System Tokens (vanilla CSS)                  │
+│                                                         │
+│                          │ HTTP / JSON                  │
+│                          ▼                              │
+│   BACKEND: Python 3.12+ FastAPI (backend/app)           │
+│   - Route Handlers (FastAPI)                            │
+│   - Service Layer (Workspace & Project Services)        │
+│   - Repository Layer (Workspace & Project Repos)        │
+│   - SQLAlchemy 2.0 ORM & Alembic Migrations             │
+│   - SQLite Database (scilab_studio.db)                  │
+│   - Structured Request Logging & Custom Exception Handling│
+│                                                         │
+└─────────────────────────────────────────────────────────┘
 ```
 
-The UI is built with TypeScript and Svelte. The backend and Scilab bridge are
-written in Rust using the Tauri framework. This gives us a small binary size,
-native performance, and a web-based frontend that's easy to iterate on.
+### Technology Stack
+
+- **Frontend**: React, TypeScript, Next.js, Turbo Monorepo, Lucide Icons.
+- **Backend**: Python 3.12+, FastAPI, Pydantic v2, SQLAlchemy 2.0, Uvicorn, Alembic, SQLite.
+- **Testing**: `pytest` for backend API & domain tests, `tsc` for TypeScript typechecking.
+- **Development Environment**: Zed IDE configured via `.zed/tasks.json`.
 
 ---
 
-## Installation
+## Installation & Setup
 
 ### Prerequisites
 
-- Scilab 7.0 or later (must be on your `PATH`)
+- Python 3.10 or later
+- Node.js 18+ and npm
 - Git
 
 ### Quick Start
 
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/fossee/scilab-studio.git
+   cd scilab-studio
+   ```
+
+2. **Backend Setup**:
+   ```bash
+   cd backend
+   python -m venv .venv
+   # Windows:
+   .venv\Scripts\activate
+   # Linux/macOS:
+   source .venv/bin/activate
+
+   pip install -r requirements.txt
+   ```
+
+3. **Frontend Setup**:
+   ```bash
+   npm install
+   ```
+
+---
+
+## Running the Application
+
+### Option A: Using Zed IDE Tasks
+Open the project in Zed IDE (`.zed/tasks.json` pre-configured):
+- `dev` — Starts full stack development environment.
+- `backend:dev` — Starts FastAPI server on `http://127.0.0.1:8000`.
+- `backend:test` — Runs backend `pytest` suite.
+- `backend:lint` — Runs `ruff` linter on backend code.
+- `frontend:dev` — Starts React frontend development server.
+
+### Option B: Terminal Command Line
+
+1. **Start Backend Server**:
+   ```bash
+   cd backend
+   uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+   ```
+   FastAPI interactive documentation will be available at `http://127.0.0.1:8000/docs`.
+
+2. **Start Frontend Server**:
+   ```bash
+   npm run dev --workspace=@scilab-studio/desktop
+   ```
+
+---
+
+## API Endpoints (v1)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/health` | GET | Health status check |
+| `/api/v1/system/info` | GET | System and runtime metadata |
+| `/api/v1/workspaces` | GET | List registered workspaces |
+| `/api/v1/workspaces` | POST | Register a new workspace |
+| `/api/v1/projects` | GET | List engineering projects |
+| `/api/v1/projects` | POST | Create a new engineering project |
+| `/api/v1/projects/{id}` | GET | Get project metadata by ID or name |
+| `/api/v1/projects/{id}` | DELETE | Soft-delete/remove project |
+| `/api/v1/projects/{id}/tree` | GET | Get recursive project directory tree |
+| `/api/v1/projects/{id}/files` | POST | Create file or directory in project |
+| `/api/v1/projects/{id}/files/{path}` | GET / PUT / DELETE | Read, update, or delete project file |
+| `/api/v1/projects/{id}/datasets` | GET / POST | List or upload project datasets |
+| `/api/v1/projects/{id}/datasets/{dataset_id}` | DELETE | Delete project dataset metadata |
+| `/api/v1/projects/{id}/experiments` | GET / POST | List or create project experiments |
+| `/api/v1/projects/{id}/experiments/{exp_id}/run` | POST | Run experiment via Scilab Runtime |
+| `/api/v1/projects/{id}/executions` | GET | List project execution history |
+| `/api/v1/projects/{id}/datasets/{dataset_id}/preview` | GET | Preview dataset rows |
+| `/api/v1/projects/{id}/datasets/{dataset_id}/schema` | GET | Inspect dataset schema & column types |
+| `/api/v1/projects/{id}/datasets/{dataset_id}/statistics` | GET | Get numeric column statistics & validation |
+| `/api/v1/projects/{id}/visualizations` | GET / POST | List or create visualization specs |
+| `/api/v1/projects/{id}/visualizations/{vis_id}` | GET / PUT / DELETE | Manage visualization specification |
+| `/api/v1/projects/{id}/visualizations/{vis_id}/data` | POST | Generate chart series data (5 chart types) |
+| `/api/v1/projects/{id}/experiments/{exp_id}/results` | POST | Create experiment result |
+| `/api/v1/projects/{id}/results` | GET | List project experiment results |
+| `/api/v1/projects/{id}/results/{result_id}` | GET | Get specific experiment result |
+| `/api/v1/projects/{id}/results/{result_id}/artifacts` | GET / POST | List or add result artifacts |
+| `/api/v1/projects/{id}/reports` | GET / POST | List or generate engineering reports |
+| `/api/v1/projects/{id}/reports/{report_id}` | GET | Get report metadata |
+| `/api/v1/projects/{id}/reports/{report_id}/download` | GET | Download HTML or PDF report export |
+| `/api/v1/plugins` | GET | List discovered and loaded plugins |
+| `/api/v1/plugins/{plugin_id}` | GET | Get specific plugin metadata and status |
+| `/api/v1/plugins/{plugin_id}/enable` | POST | Enable plugin and register extensions |
+| `/api/v1/plugins/{plugin_id}/disable` | POST | Disable plugin and unregister extensions |
+| `/api/v1/plugins/capabilities` | GET | List available plugin capability types |
+| `/api/v1/plugins/gui-components` | GET | Discover plugin-provided GUI components |
+| `/api/v1/plugins/visualizations` | GET | Discover plugin-provided visualization providers |
+| `/api/v1/plugins/dataset-loaders` | GET | Discover plugin-provided dataset loaders |
+| `/api/v1/plugins/report-templates` | GET | Discover plugin-provided report templates |
+| `/api/v1/templates` | GET | List discovered engineering templates with filtering |
+| `/api/v1/templates/categories` | GET | List available engineering categories |
+| `/api/v1/templates/{template_id}` | GET | Get template manifest details and parameters |
+| `/api/v1/templates/{template_id}/validate` | POST | Validate template structure and path safety |
+| `/api/v1/templates/{template_id}/create-project` | POST | Instantiate independent project from template |
+| `/api/v1/scilab/status` | GET | Check Scilab detection & runtime state |
+| `/api/v1/scilab/start` | POST | Start Scilab runtime session |
+| `/api/v1/scilab/execute` | POST | Execute inline Scilab command |
+
+---
+
+## Running Tests
+
+### Backend Test Suite (Pytest)
 ```bash
-git clone https://github.com/fossee/scilab-studio.git
-cd scilab-studio
-# Linux/macOS
-./install.sh
-# Windows
-install.bat
+cd backend
+python -m pytest
 ```
 
-### Platform Notes
-
-| Platform | Requirements |
-|----------|-------------|
-| Linux | Ubuntu 20.04+ / Fedora 35+ |
-| macOS | 12+ (Monterey or later) |
-| Windows | 10+ (64-bit) |
+### Frontend Typechecking
+```bash
+npm run typecheck
+```
 
 ---
 

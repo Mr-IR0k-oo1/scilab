@@ -6,7 +6,7 @@ export class FetchTransport implements ApiTransport {
   private baseUrl: string;
 
   constructor() {
-    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8747';
+    this.baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
   }
 
   async request<T>(method: string, path: string, body?: any): Promise<T> {

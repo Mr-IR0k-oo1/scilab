@@ -10,8 +10,10 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "turbo dev",
-    "build": "turbo build",
+    "dev": "cargo run --manifest-path zed/Cargo.toml --package zed",
+    "dev:zed": "cargo run --manifest-path zed/Cargo.toml --package zed",
+    "build": "cargo build --release --manifest-path zed/Cargo.toml --package zed",
+    "build:zed": "cargo build --release --manifest-path zed/Cargo.toml --package zed",
     "test": "turbo test",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

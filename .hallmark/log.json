@@ -1,0 +1,10 @@
+[
+  {
+    "date": "2026-08-10",
+    "macrostructure": "Workbench Shell",
+    "theme": "custom",
+    "theme_axes": "dark graphite / compact editor / amber accent",
+    "enrichment": "none",
+    "brief": "Use an open Zed-style editor workbench as the UI base for Scilab Studio."
+  }
+]

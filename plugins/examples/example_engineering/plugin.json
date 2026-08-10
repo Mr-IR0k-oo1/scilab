@@ -1,0 +1,14 @@
+{
+  "id": "example.engineering",
+  "name": "Example Engineering Extension Plugin",
+  "version": "0.1.0",
+  "api_version": "1",
+  "description": "Production example plugin registering engineering GUI components, visualization extensions, and event handlers.",
+  "author": "Scilab Platform Team",
+  "entrypoint": "plugin:ExampleEngineeringPlugin",
+  "capabilities": [
+    "GUI_COMPONENT",
+    "VISUALIZATION",
+    "DATASET_LOADER"
+  ]
+}

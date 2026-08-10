@@ -37,6 +37,8 @@ export interface Store {
   consoleHistory: string[];
   consoleInput: string;
   datasets: Dataset[];
+  showEditorOutput: boolean;
+  activeBottomTab: 'console' | 'variables' | 'output';
 }
 
 type Listener = (s: Store) => void;
@@ -63,6 +65,8 @@ let store: Store = {
   consoleHistory: [],
   consoleInput: '',
   datasets: [],
+  showEditorOutput: true,
+  activeBottomTab: 'output',
 };
 
 const SESSION_KEY = 'fossee-session';
@@ -182,3 +186,19 @@ export function setDatasets(datasets: Dataset[]) {
   store = { ...store, datasets };
   emit();
 }
+
+export function toggleOutputTab() {
+  const current = store.showEditorOutput;
+  const isPanelOpen = store.bottomPanelOpen;
+  const currentTab = store.activeBottomTab;
+  
+  if (currentTab === 'output' && isPanelOpen) {
+    // If output bottom panel is open and active, toggle it closed
+    store = { ...store, showEditorOutput: !current, bottomPanelOpen: false };
+  } else {
+    // Open output bottom panel and show output
+    store = { ...store, showEditorOutput: true, bottomPanelOpen: true, activeBottomTab: 'output' };
+  }
+  emit();
+}
+

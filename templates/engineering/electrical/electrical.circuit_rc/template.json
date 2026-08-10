@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "electrical.circuit_rc",
+  "name": "RC Circuit Transient Step Response",
+  "version": "1.0.0",
+  "category": "electrical",
+  "description": "Models the charging and discharging voltage dynamics of a series RC circuit under step input excitation.",
+  "difficulty": "beginner",
+  "scilab_version": ">=6.0.0",
+  "entry_experiment": "scripts/main.sce",
+  "parameters": [
+    {
+      "name": "r_ohm",
+      "label": "Resistance (R)",
+      "type": "number",
+      "default": 1000.0,
+      "minimum": 10.0,
+      "maximum": 100000.0,
+      "step": 100.0,
+      "unit": "Ohms"
+    },
+    {
+      "name": "c_farad",
+      "label": "Capacitance (C)",
+      "type": "number",
+      "default": 0.000001,
+      "minimum": 0.00000001,
+      "maximum": 0.001,
+      "step": 0.0000001,
+      "unit": "Farads"
+    },
+    {
+      "name": "v_in",
+      "label": "Input Voltage (Vin)",
+      "type": "number",
+      "default": 5.0,
+      "minimum": 0.1,
+      "maximum": 100.0,
+      "step": 0.5,
+      "unit": "Volts"
+    }
+  ],
+  "tags": ["electrical", "rc-circuit", "transient", "voltage"]
+}

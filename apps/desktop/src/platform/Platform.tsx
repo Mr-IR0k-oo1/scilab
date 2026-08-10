@@ -5,6 +5,8 @@ import Sidebar from '@/components/Sidebar';
 import BottomPanel from '@/components/BottomPanel';
 import RightSidebar from '@/components/RightSidebar';
 import Assistant from '@/components/Assistant';
+import ActivityRail from '@/components/ActivityRail';
+import CommandPalette from '@/components/CommandPalette';
 import Layout from '@/platform/Layout';
 import GuiBuilder from '@/modules/gui-builder/GuiBuilder';
 import VizStudio from '@/modules/visualization/VizStudio';
@@ -48,6 +50,7 @@ interface PlatformProps {
 }
 
 export default function Platform({ rightSidebarContent = 'assistant', sidebar }: PlatformProps) {
+  const [commandOpen, setCommandOpen] = useState(false);
   const [, forceUpdate] = useState(0);
   const s = getStore();
 
@@ -57,6 +60,8 @@ export default function Platform({ rightSidebarContent = 'assistant', sidebar }:
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'b') { e.preventDefault(); setStore({ sidebarOpen: !getStore().sidebarOpen }); }
       if ((e.ctrlKey || e.metaKey) && e.key === 'j') { e.preventDefault(); setStore({ bottomPanelOpen: !getStore().bottomPanelOpen }); }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'p') { e.preventDefault(); setCommandOpen(true); }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') { e.preventDefault(); setCommandOpen(true); }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
@@ -75,30 +80,34 @@ export default function Platform({ rightSidebarContent = 'assistant', sidebar }:
   const rightContent = rightSidebarContent === 'none' ? null : rightSidebarContent === 'assistant' ? <Assistant /> : <RightSidebar />;
 
   return (
-    <div className="app" style={{ zoom: s.zoom }}>
+    <div className="app workbench" style={{ zoom: s.zoom }}>
       <MenuBar />
-      <Layout
-        sidebar={sidebar ?? (
-          <Sidebar
-            onOpenFile={(path) => {
-              const ext = path.split('.').pop()?.toLowerCase();
-              if (ext === 'sci' || ext === 'sce') switchModule('editor');
-              else if (ext === 'csv' || ext === 'xlsx' || ext === 'xls') switchModule('data');
-            }}
-          />
-        )}
-        main={
-          <div className="editor-area" key={s.activeTab ?? 'welcome'}>
-            <Tabs />
-            <div className="editor-content">
-              <ActiveComponent />
+      <div className="workbench-frame">
+        <ActivityRail onCommandPalette={() => setCommandOpen(true)} />
+        <Layout
+          sidebar={sidebar ?? (
+            <Sidebar
+              onOpenFile={(path) => {
+                const ext = path.split('.').pop()?.toLowerCase();
+                if (ext === 'sci' || ext === 'sce') switchModule('editor');
+                else if (ext === 'csv' || ext === 'xlsx' || ext === 'xls') switchModule('data');
+              }}
+            />
+          )}
+          main={
+            <div className="editor-area" key={s.activeTab ?? 'welcome'}>
+              <Tabs />
+              <div className="editor-content">
+                <ActiveComponent />
+              </div>
             </div>
-          </div>
-        }
-        rightSidebar={s.rightSidebarOpen ? rightContent : null}
-        bottomPanel={s.bottomPanelOpen ? <BottomPanel /> : null}
-      />
+          }
+          rightSidebar={s.rightSidebarOpen ? rightContent : null}
+          bottomPanel={s.bottomPanelOpen ? <BottomPanel /> : null}
+        />
+      </div>
       <StatusBar />
+      <CommandPalette open={commandOpen} onClose={() => setCommandOpen(false)} />
     </div>
   );
 }

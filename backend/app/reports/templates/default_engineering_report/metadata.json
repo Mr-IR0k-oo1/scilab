@@ -1,0 +1,7 @@
+{
+  "id": "default_engineering_report",
+  "name": "Standard Engineering Analysis Report",
+  "description": "Comprehensive 13-section technical report template including project metadata, execution traces, dataset summaries, visualizations, artifacts, and reproducibility information.",
+  "version": "1.0.0",
+  "schema_version": 1
+}

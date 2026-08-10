@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "id": "data.regression",
+  "name": "Linear Regression and Statistical Correlation",
+  "version": "1.0.0",
+  "category": "data_analysis",
+  "description": "Computes least-squares linear regression slope, intercept, and Pearson correlation coefficient for engineering datasets.",
+  "difficulty": "beginner",
+  "scilab_version": ">=6.0.0",
+  "entry_experiment": "scripts/main.sce",
+  "parameters": [
+    {
+      "name": "n_samples",
+      "label": "Sample Size",
+      "type": "integer",
+      "default": 100,
+      "minimum": 10,
+      "maximum": 1000,
+      "step": 10,
+      "unit": ""
+    }
+  ],
+  "tags": ["statistics", "regression", "data", "correlation"]
+}

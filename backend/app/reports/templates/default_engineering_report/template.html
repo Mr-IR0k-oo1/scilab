@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #2d3748; margin: 0; padding: 40px; background-color: #f8fafc; }
+        .container { max-width: 900px; margin: 0 auto; background: #ffffff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .header { border-bottom: 2px solid #3182ce; padding-bottom: 20px; margin-bottom: 30px; }
+        h1 { color: #1a365d; font-size: 28px; margin: 0 0 10px 0; }
+        .subtitle { color: #4a5568; font-size: 14px; }
+        .section { margin-bottom: 30px; }
+        .section-title { font-size: 18px; font-weight: bold; color: #2b6cb0; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; margin-bottom: 20px; }
+        th, td { text-align: left; padding: 8px 12px; border: 1px solid #e2e8f0; font-size: 13px; }
+        th { background-color: #ebf8ff; color: #2c5282; }
+        .code-box { background-color: #1a202c; color: #f7fafc; padding: 15px; border-radius: 5px; font-family: 'Courier New', Courier, monospace; font-size: 12px; overflow-x: auto; white-space: pre-wrap; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; background: #38a169; color: white; }
+        .footer { border-top: 1px solid #e2e8f0; padding-top: 15px; font-size: 11px; color: #718096; text-align: center; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>{{ title }}</h1>
+        <div class="subtitle">
+            <strong>Author:</strong> {{ author }} | <strong>Organization:</strong> {{ organization }} | <strong>Date:</strong> {{ date }}
+        </div>
+    </div>
+
+    <!-- 1. Description & Objective -->
+    <div class="section">
+        <div class="section-title">1. Objective & Description</div>
+        <p>{{ description }}</p>
+    </div>
+
+    <!-- 2. Project Information -->
+    <div class="section">
+        <div class="section-title">2. Project Metadata</div>
+        <table>
+            <tr><th>Project ID</th><td>{{ project.id }}</td></tr>
+            <tr><th>Project Name</th><td>{{ project.name }}</td></tr>
+            <tr><th>Description</th><td>{{ project.description }}</td></tr>
+        </table>
+    </div>
+
+    <!-- 3. Experiment Information -->
+    <div class="section">
+        <div class="section-title">3. Experiment Information</div>
+        <table>
+            <tr><th>Experiment ID</th><td>{{ experiment.id }}</td></tr>
+            <tr><th>Experiment Name</th><td>{{ experiment.name }}</td></tr>
+            <tr><th>Script Target</th><td>{{ experiment.script_path }}</td></tr>
+            <tr><th>Status</th><td><span class="badge">{{ experiment.status }}</span></td></tr>
+        </table>
+    </div>
+
+    <!-- 4. Execution Details -->
+    <div class="section">
+        <div class="section-title">4. Execution Trace</div>
+        <table>
+            <tr><th>Execution ID</th><td>{{ execution.execution_id }}</td></tr>
+            <tr><th>Duration</th><td>{{ execution.duration_ms }} ms</td></tr>
+            <tr><th>Exit Code</th><td>{{ execution.exit_code }}</td></tr>
+            <tr><th>Execution Status</th><td>{{ execution.status }}</td></tr>
+        </table>
+
+        {% if execution.stdout %}
+        <h4>Captured Standard Output (stdout):</h4>
+        <div class="code-box">{{ execution.stdout }}</div>
+        {% endif %}
+
+        {% if execution.stderr %}
+        <h4>Captured Standard Error (stderr):</h4>
+        <div class="code-box" style="background: #742a2a;">{{ execution.stderr }}</div>
+        {% endif %}
+    </div>
+
+    <!-- 5. Input Dataset -->
+    {% if dataset %}
+    <div class="section">
+        <div class="section-title">5. Input Dataset Summary</div>
+        <table>
+            <tr><th>Filename</th><td>{{ dataset.filename }}</td></tr>
+            <tr><th>Path</th><td>{{ dataset.path }}</td></tr>
+            <tr><th>Size</th><td>{{ dataset.size_bytes }} bytes</td></tr>
+            <tr><th>Rows / Columns</th><td>{{ dataset.row_count }} rows / {{ dataset.column_count }} columns</td></tr>
+            <tr><th>Content Hash (SHA-256)</th><td><code>{{ dataset.content_hash }}</code></td></tr>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- 6. Visualizations -->
+    {% if visualizations %}
+    <div class="section">
+        <div class="section-title">6. Associated Visualizations</div>
+        <table>
+            <thead>
+                <tr><th>Chart Name</th><th>Type</th><th>X Column</th><th>Y Columns</th></tr>
+            </thead>
+            <tbody>
+                {% for vis in visualizations %}
+                <tr>
+                    <td>{{ vis.name }}</td>
+                    <td>{{ vis.type }}</td>
+                    <td>{{ vis.x_column }}</td>
+                    <td>{{ vis.y_columns }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- 7. Reproducibility Metadata -->
+    <div class="section">
+        <div class="section-title">7. Reproducibility & Provenance Information</div>
+        <table>
+            <tr><th>Report Schema Version</th><td>{{ reproducibility.report_schema_version }}</td></tr>
+            <tr><th>Scilab Engine Version</th><td>{{ reproducibility.scilab_version }}</td></tr>
+            <tr><th>App Version</th><td>{{ reproducibility.app_version }}</td></tr>
+            <tr><th>Execution Timestamp</th><td>{{ reproducibility.execution_timestamp }}</td></tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        Generated by Scilab Studio Engineering Report Engine | FOSSEE Scilab Ecosystem
+    </div>
+</div>
+</body>
+</html>

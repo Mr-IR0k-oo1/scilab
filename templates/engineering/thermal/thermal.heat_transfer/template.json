@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "id": "thermal.heat_transfer",
+  "name": "1D Transient Heat Conduction Model",
+  "version": "1.0.0",
+  "category": "thermal",
+  "description": "Simulates transient 1D conductive heat conduction through a thermal rod under boundary heating.",
+  "difficulty": "intermediate",
+  "scilab_version": ">=6.0.0",
+  "entry_experiment": "scripts/main.sce",
+  "parameters": [
+    {
+      "name": "k_thermal",
+      "label": "Thermal Conductivity (k)",
+      "type": "number",
+      "default": 205.0,
+      "minimum": 1.0,
+      "maximum": 400.0,
+      "step": 5.0,
+      "unit": "W/(m K)"
+    },
+    {
+      "name": "t_source",
+      "label": "Heat Source Temp (T_src)",
+      "type": "number",
+      "default": 100.0,
+      "minimum": 0.0,
+      "maximum": 500.0,
+      "step": 10.0,
+      "unit": "deg C"
+    }
+  ],
+  "tags": ["thermal", "heat-transfer", "conduction", "transient"]
+}
